@@ -2,6 +2,7 @@ import .list .misc
 
 variable {α : Type }
 
+@[derive has_reflect]
 inductive exp (α : Type) : Type 
 | bvr : nat → exp 
 | fvr : nat → exp 

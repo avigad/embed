@@ -14,7 +14,7 @@ notation  `⊤'` := true
 def false [is_symb α] := @exp.cst α (is_symb.false α)
 notation  `⊥'` := false
 
-def not [is_symb α] (p : exp α) := exp.app (exp.cst (is_symb.false α)) p
+def not [is_symb α] (p : exp α) := exp.app (exp.cst (is_symb.not α)) p
 notation  `¬'` p := not p
 
 def and [is_symb α] (p q : exp α) := exp.app (exp.app (exp.cst (is_symb.and α)) p) q
@@ -26,6 +26,7 @@ notation  p `∨'` q := or p q
 def imp [is_symb α] (p q : exp α) := exp.app (exp.app (exp.cst (is_symb.imp α)) p) q
 notation  p `→'` q := imp p q
 
+@[derive has_reflect]
 inductive symb : Type 
 | atom : string → symb 
 | true : symb
@@ -52,7 +53,7 @@ inductive inf [is_symb α] : list (seq α) → seq α → Prop
 | id : ∀ Γ Δ p, inf [] (p::Γ ==> p::Δ)
 | truer : ∀ Γ Δ, inf [] (Γ ==> ⊤'::Δ) 
 | falsel : ∀ Γ Δ, inf [] (⊥'::Γ ==> Δ) 
-| andl : ∀ Γ Δ p q, inf [(p ∧' q)::Γ ==> Δ] (p::q::Γ ==> Δ) 
+| andl : ∀ Γ Δ p q, inf [p::q::Γ ==> Δ] ((p ∧' q)::Γ ==> Δ)
 | andr : ∀ Γ Δ p q, inf [Γ ==> p::Δ, Γ ==> q::Δ] (Γ ==> (p ∧' q)::Δ)
 | orl : ∀ Γ Δ p q, inf [p::Γ ==> Δ, q::Γ ==> Δ] ((p ∨' q)::Γ ==> Δ) 
 | orr : ∀ Γ Δ p q, inf [Γ ==> p::q::Δ] (Γ ==> (p ∨' q)::Δ)
@@ -96,7 +97,7 @@ end
 
 lemma thm.andl [is_symb α] : 
   ∀ (Γ Δ : list (exp α)) p q,
-  thm ((p ∧' q)::Γ ==> Δ) → thm (p::q::Γ ==> Δ) :=
+  thm (p::q::Γ ==> Δ) → thm ((p ∧' q)::Γ ==> Δ) :=
 begin
   intros Γ Δ p q h, apply thm.inf, apply inf.andl, 
   rewrite forall_mem_singleton, apply h 
